@@ -13,7 +13,7 @@ type ArtName = 'hero' | 'reality' | 'commute' | 'focus' | 'papers' | 'mocks' | '
 type ArtSpec = { source: string; originalWidth: number; originalHeight: number; x: number; y: number; width: number; height: number; alt: string };
 
 const illustrations: Record<ArtName, ArtSpec> = {
-  hero: { source: '01-hero.png', originalWidth: 1536, originalHeight: 1024, x: 790, y: 120, width: 635, height: 790, alt: 'A hand lifts a question paper out of a pile of scattered papers.' },
+  hero: { source: 'hero-clean-background.png', originalWidth: 1536, originalHeight: 1024, x: 790, y: 120, width: 635, height: 790, alt: 'A hand lifts a question paper out of a pile of scattered papers.' },
   reality: { source: '02-the-reality.png', originalWidth: 1536, originalHeight: 1024, x: 40, y: 290, width: 780, height: 505, alt: 'An overwhelmed student rests their head on a laptop, surrounded by papers and a cup of coffee.' },
   commute: { source: '03-real-life-real-goals.png', originalWidth: 1536, originalHeight: 1024, x: 610, y: 135, width: 335, height: 756, alt: 'Busy commuters share a crowded train, making room for everyday life and their goals.' },
   focus: { source: '04-focus-on-what-matters.png', originalWidth: 1536, originalHeight: 1024, x: 150, y: 602, width: 1245, height: 379, alt: 'A playful illustration of a student balancing study, time, a trophy, and everyday life.' },
@@ -73,13 +73,15 @@ export default function Home() {
     const media = gsap.matchMedia();
     media.add('(prefers-reduced-motion: no-preference)', () => {
       const context = gsap.context(() => {
+        // Preserve layout styles such as the illustration's inline aspect ratio.
+        const entranceCleanup = 'transform,opacity';
         gsap.timeline({ defaults: { ease: 'power2.out' } })
-          .from('.hero-copy > *', { y: 22, opacity: 0, duration: 0.8, stagger: 0.13, clearProps: 'all' })
-          .from('.hero-art', { y: 28, rotation: -1.5, opacity: 0, duration: 1.2, clearProps: 'all' }, 0.18);
+          .from('.hero-copy > *', { y: 22, opacity: 0, duration: 0.8, stagger: 0.13, clearProps: entranceCleanup })
+          .from('.hero-art', { y: 28, rotation: -1.5, opacity: 0, duration: 1.2, clearProps: entranceCleanup }, 0.18);
 
         gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((element) => {
           gsap.from(element, {
-            y: 28, opacity: 0, duration: 0.85, ease: 'power2.out', clearProps: 'all',
+            y: 28, opacity: 0, duration: 0.85, ease: 'power2.out', clearProps: entranceCleanup,
             scrollTrigger: { trigger: element, start: 'top 92%', once: true },
           });
         });
@@ -92,7 +94,7 @@ export default function Home() {
         });
 
         gsap.from('.feature-card', {
-          y: 24, opacity: 0, duration: 0.75, stagger: 0.1, ease: 'power2.out', clearProps: 'all',
+          y: 24, opacity: 0, duration: 0.75, stagger: 0.1, ease: 'power2.out', clearProps: entranceCleanup,
           scrollTrigger: { trigger: '.feature-grid', start: 'top 86%', once: true },
         });
       }, root);

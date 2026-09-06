@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://ezcat.uniprocenergies.chatgpt.site'),
+  metadataBase: new URL('http://localhost:3000'),
   icons: { icon: '/favicon.svg' },
   title: 'EZCAT — CAT preparation, without the extra work.',
   description: 'Daily, AI-curated practice from real CAT papers. Open the app, solve, improve, repeat. EZCAT makes CAT preparation simple, focused, and effective.',
