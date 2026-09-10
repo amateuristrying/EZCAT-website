@@ -2,13 +2,30 @@
 
 First implementation of the five user-designed references in `../initial-design/`. Preserve the original order, copy, and illustration style before making later design improvements.
 
-## Local-only workflow
+## Hosting workflow
 
-The user explicitly wants this project to run on localhost only. Do not create deployments, publish, or push to hosted Sites unless the user explicitly requests it later. Keep the development server running for local previews. Existing hosting metadata is retained only to identify the previously created deployment for removal.
+Production is hosted on Cloudflare Pages at https://ezcat.pages.dev/ from the GitHub repository `amateuristrying/EZCAT-website`. Pushes to `main` trigger automatic Pages deployments. Do not publish to hosted OpenAI Sites. Existing Sites metadata identifies the previously created deployment; it is not the production deployment target.
 
 ## Development
 
 Use Node 22.13 or newer. Install dependencies with `npm install`, start with `npm run dev`, and build with `npm run build`.
+
+## Cloudflare Pages
+
+The build uses Vinext static export (`output: 'export'`) to generate the homepage at `dist/client/index.html`, alongside JavaScript, styles, fonts, and illustrations. No Worker runtime or database is required. GSAP and interactive controls run in the browser.
+
+Use these Pages settings:
+
+| Setting | Value |
+| --- | --- |
+| Production branch | `main` |
+| Framework preset | None |
+| Root directory | Leave blank (the app is at the GitHub repository root) |
+| Build command | `npm run build` |
+| Build output directory | `dist/client` |
+| Environment variable | `NODE_VERSION=22` |
+
+Deploy only the public `dist/client` folder, not `dist` or `dist/server`. A successful assets-only upload without `index.html` returns a homepage 404. Older commit `54a440e` produced a Worker build and must not be reused for Pages; deploy a commit containing this static-export configuration.
 
 ## Structure
 
