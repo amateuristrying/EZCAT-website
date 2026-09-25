@@ -39,3 +39,6 @@ next-env.d.ts
 
 # TypeScript build cache
 *.tsbuildinfo
+
+# agent work files
+.agents/

@@ -10,27 +10,26 @@ import { siteLinks } from '@/lib/site-links';
 
 type Panel = 'app' | 'docs' | 'github' | null;
 type ArtName = 'hero' | 'reality' | 'commute' | 'focus' | 'papers' | 'mocks' | 'analysis' | 'target' | 'calendar' | 'brain' | 'relax';
-type ArtSpec = { source: string; originalWidth: number; originalHeight: number; x: number; y: number; width: number; height: number; alt: string };
+type ArtSpec = { width: number; height: number; alt: string };
 
 const illustrations: Record<ArtName, ArtSpec> = {
-  hero: { source: 'hero-clean-background.png', originalWidth: 1536, originalHeight: 1024, x: 790, y: 120, width: 635, height: 790, alt: 'A hand lifts a question paper out of a pile of scattered papers.' },
-  reality: { source: '02-the-reality.png', originalWidth: 1536, originalHeight: 1024, x: 40, y: 290, width: 780, height: 505, alt: 'An overwhelmed student rests their head on a laptop, surrounded by papers and a cup of coffee.' },
-  commute: { source: '03-real-life-real-goals.png', originalWidth: 1536, originalHeight: 1024, x: 610, y: 135, width: 335, height: 756, alt: 'Busy commuters share a crowded train, making room for everyday life and their goals.' },
-  focus: { source: '04-focus-on-what-matters.png', originalWidth: 1536, originalHeight: 1024, x: 150, y: 602, width: 1245, height: 379, alt: 'A playful illustration of a student balancing study, time, a trophy, and everyday life.' },
-  papers: { source: '05-features-and-closing-cta.png', originalWidth: 1024, originalHeight: 1536, x: 137, y: 417, width: 160, height: 120, alt: '' },
-  mocks: { source: '05-features-and-closing-cta.png', originalWidth: 1024, originalHeight: 1536, x: 440, y: 417, width: 150, height: 120, alt: '' },
-  analysis: { source: '05-features-and-closing-cta.png', originalWidth: 1024, originalHeight: 1536, x: 735, y: 417, width: 155, height: 120, alt: '' },
-  target: { source: '05-features-and-closing-cta.png', originalWidth: 1024, originalHeight: 1536, x: 139, y: 704, width: 160, height: 117, alt: '' },
-  calendar: { source: '05-features-and-closing-cta.png', originalWidth: 1024, originalHeight: 1536, x: 440, y: 704, width: 150, height: 117, alt: '' },
-  brain: { source: '05-features-and-closing-cta.png', originalWidth: 1024, originalHeight: 1536, x: 732, y: 704, width: 155, height: 117, alt: '' },
-  relax: { source: '05-features-and-closing-cta.png', originalWidth: 1024, originalHeight: 1536, x: 128, y: 1062, width: 827, height: 335, alt: 'A relaxed student uses EZCAT on their phone, resting their head on a stack of books.' },
+  hero: { width: 635, height: 790, alt: 'A hand lifts a question paper out of a pile of scattered papers.' },
+  reality: { width: 780, height: 505, alt: 'An overwhelmed student rests their head on a laptop, surrounded by papers and a cup of coffee.' },
+  commute: { width: 335, height: 756, alt: 'Busy commuters share a crowded train, making room for everyday life and their goals.' },
+  focus: { width: 1245, height: 379, alt: 'A playful illustration of a student balancing study, time, a trophy, and everyday life.' },
+  papers: { width: 160, height: 120, alt: '' },
+  mocks: { width: 150, height: 120, alt: '' },
+  analysis: { width: 155, height: 120, alt: '' },
+  target: { width: 160, height: 117, alt: '' },
+  calendar: { width: 150, height: 117, alt: '' },
+  brain: { width: 155, height: 117, alt: '' },
+  relax: { width: 827, height: 335, alt: 'A relaxed student uses EZCAT on their phone, resting their head on a stack of books.' },
 };
 
 function Illustration({ name, className = '', eager = false }: { name: ArtName; className?: string; eager?: boolean }) {
   const art = illustrations[name];
   return <div className={'art art-' + name + ' ' + className} style={{ aspectRatio: art.width + ' / ' + art.height }} role={art.alt ? 'img' : undefined} aria-label={art.alt || undefined} aria-hidden={!art.alt || undefined}>
-    <img src={'/design/' + art.source} alt="" width={art.originalWidth} height={art.originalHeight} loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : 'auto'} decoding="async" draggable={false}
-      style={{ width: (art.originalWidth / art.width) * 100 + '%', left: (-art.x / art.width) * 100 + '%', top: (-art.y / art.height) * 100 + '%' } as CSSProperties} />
+    <img src={'/illustrations/' + name + '.png'} alt="" width={art.width} height={art.height} loading={eager ? 'eager' : 'lazy'} fetchPriority={eager ? 'high' : 'auto'} decoding="async" draggable={false} />
   </div>;
 }
 
@@ -111,13 +110,18 @@ export default function Home() {
     setPanel(name);
   };
 
-  const linkOrButton = (name: 'docs' | 'github', children: ReactNode) => siteLinks[name]
-    ? <a href={siteLinks[name]!} target="_blank" rel="noopener noreferrer">{children}</a>
-    : <button type="button" onClick={() => openPanel(name)}>{children}</button>;
+  const linkOrButton = (name: 'docs' | 'github', children: ReactNode) => {
+    const href = siteLinks[name];
+    if (!href) return <button type="button" onClick={() => openPanel(name)}>{children}</button>;
+    const isExternal = href.startsWith('http');
+    return <a href={href} target={isExternal ? '_blank' : undefined} rel={isExternal ? 'noopener noreferrer' : undefined}>{children}</a>;
+  };
 
-  const appButton = (className: string, label = 'Get the App') => siteLinks.webApp
-    ? <a className={'button ' + className} href={siteLinks.webApp} target="_blank" rel="noopener noreferrer">{label}<ArrowUpRight aria-hidden="true" /></a>
-    : <button type="button" className={'button ' + className} onClick={() => openPanel('app')}>{label}<ArrowUpRight aria-hidden="true" /></button>;
+  const appButton = (className: string, label = 'Get the App') => (
+    <button type="button" className={'button ' + className} onClick={() => openPanel('app')}>
+      {label}<ArrowUpRight aria-hidden="true" />
+    </button>
+  );
 
   return <div ref={root} className="site-shell">
     <a className="skip-link" href="#main">Skip to content</a>
@@ -125,7 +129,7 @@ export default function Home() {
       <a className="wordmark nav-wordmark" href="#home" aria-label="EZCAT home"><span>ez</span>cat</a>
       <nav className="desktop-nav" aria-label="Main navigation">
         {linkOrButton('docs', <><BookOpen aria-hidden="true" />Docs</>)}
-        <button type="button" onClick={() => openPanel('app')}><Download aria-hidden="true" />Downloads</button>
+        <a href="#downloads"><Download aria-hidden="true" />Downloads</a>
         {linkOrButton('github', <><GithubIcon />GitHub</>)}
       </nav>
       <div className="header-actions">
@@ -237,6 +241,14 @@ export default function Home() {
           <footer className="site-footer" data-reveal>
             <h2>Your <Ink>last</Ink> CAT prep application.</h2>
             <p><Heart aria-hidden="true" />Built with love for CAT aspirants</p>
+            <ul className="footer-links">
+              <li><a href="/docs">Docs</a></li>
+              <li><a href="#downloads">Downloads</a></li>
+              <li><a href="/privacy">Privacy Policy</a></li>
+              <li><a href="/terms">Terms of Service</a></li>
+              <li><a href={siteLinks.github} target="_blank" rel="noopener noreferrer">GitHub</a></li>
+              <li><a href={siteLinks.issues} target="_blank" rel="noopener noreferrer">Feedback &amp; Issues</a></li>
+            </ul>
           </footer>
         </div>
       </section>
@@ -248,9 +260,12 @@ export default function Home() {
         <SheetDescription className="sr-only">EZCAT navigation</SheetDescription>
         <nav aria-label="Mobile navigation">
           {linkOrButton('docs', <><BookOpen />Docs<ArrowUpRight /></>)}
-          <button type="button" onClick={() => openPanel('app')}><Download />Downloads<ArrowUpRight /></button>
+          <a href="#downloads" onClick={() => setMenuOpen(false)}><Download />Downloads<ArrowUpRight /></a>
           {linkOrButton('github', <><GithubIcon />GitHub<ArrowUpRight /></>)}
-          <a href="#features" onClick={() => setMenuOpen(false)}>Learn More<ArrowUpRight /></a>
+          <a href="#features" onClick={() => setMenuOpen(false)}>Features<ArrowUpRight /></a>
+          <a href="/privacy" onClick={() => setMenuOpen(false)}>Privacy Policy<ArrowUpRight /></a>
+          <a href="/terms" onClick={() => setMenuOpen(false)}>Terms of Service<ArrowUpRight /></a>
+          <a href={siteLinks.issues} target="_blank" rel="noopener noreferrer">Report an Issue<ArrowUpRight /></a>
         </nav>
       </SheetContent>
     </Sheet>
@@ -260,14 +275,18 @@ export default function Home() {
         {panel === 'app' && <>
           <span className="dialog-mark wordmark" aria-hidden="true"><span>ez</span>cat</span>
           <DialogTitle>Get EZCAT</DialogTitle>
-          <DialogDescription>App links are not available here yet. Explore what EZCAT can do while they’re being prepared.</DialogDescription>
+          <DialogDescription>Choose your platform below to install EZCAT or explore the release packages.</DialogDescription>
           <div className="platform-list">
-            {([{ label: 'Web app', Icon: Monitor, href: siteLinks.webApp }, { label: 'Android', Icon: Smartphone, href: siteLinks.android }, { label: 'iOS', Icon: Smartphone, href: siteLinks.ios }]).map(({ label, Icon, href }) =>
+            {([
+              { label: 'Android (Standalone APK)', Icon: Smartphone, href: siteLinks.android, note: 'Direct APK download' },
+              { label: 'Web release package', Icon: Monitor, href: siteLinks.webApp, note: 'GitHub Releases' },
+              { label: 'iOS (In development)', Icon: Smartphone, href: siteLinks.ios, note: 'Coming soon' }
+            ]).map(({ label, Icon, href, note }) =>
               href ? <a key={label} href={href} target="_blank" rel="noopener noreferrer"><Icon /><strong>{label}</strong><ArrowUpRight /></a> :
-                <div key={label}><Icon /><strong>{label}</strong><span>Not available yet</span></div>
+                <div key={label}><Icon /><strong>{label}</strong><span>{note}</span></div>
             )}
           </div>
-          <a className="button button-solid dialog-action" href="#features" onClick={() => setPanel(null)}>Explore the features <ArrowUpRight /></a>
+          <a className="button button-solid dialog-action" href={siteLinks.releases} target="_blank" rel="noopener noreferrer">View All Releases on GitHub <ArrowUpRight /></a>
         </>}
         {panel === 'docs' && <>
           <BookOpen className="dialog-icon" />
@@ -278,13 +297,13 @@ export default function Home() {
             <div><h3>Step into exam mode.</h3><p>Choose a 15-minute mini mock, a 40-minute sectional, or a full 120-minute CAT mock.</p></div>
             <div><h3>Learn from every attempt.</h3><p>Track your accuracy, timing, and weak topics. Bring your own API key for personalized AI coaching.</p></div>
           </div>
-          <a className="button button-solid dialog-action" href="#features" onClick={() => setPanel(null)}>Explore EZCAT <ArrowUpRight /></a>
+          <a className="button button-solid dialog-action" href="/docs" onClick={() => setPanel(null)}>Read Full Documentation <ArrowUpRight /></a>
         </>}
         {panel === 'github' && <>
           <span className="dialog-icon"><GithubIcon /></span>
           <DialogTitle>Open source. Built for you.</DialogTitle>
-          <DialogDescription>EZCAT is an open-source CAT preparation companion. The repository link is not available here yet.</DialogDescription>
-          <a className="button button-solid dialog-action" href="#features" onClick={() => setPanel(null)}>Explore EZCAT <ArrowUpRight /></a>
+          <DialogDescription>EZCAT is an open-source CAT preparation companion built with love for aspirants.</DialogDescription>
+          <a className="button button-solid dialog-action" href={siteLinks.github} target="_blank" rel="noopener noreferrer">Visit GitHub Repository <ArrowUpRight /></a>
         </>}
       </DialogContent>
     </Dialog>
